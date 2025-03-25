@@ -1,9 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MazeRenderer : MonoBehaviour
 {
+    public Unity.AI.Navigation.NavMeshSurface surface;
+
+
     [SerializeField] mazeGen mazeGenerator;
     [SerializeField] GameObject MazeCellPrefab;
 
@@ -11,9 +14,16 @@ public class MazeRenderer : MonoBehaviour
 
     private void Start()
     {
+        GenerateMaze();
+
+        surface.BuildNavMesh();
+    }
+
+    private void GenerateMaze() {
         MazeCell[,] maze = mazeGenerator.GetMaze();
 
-        for (int x = 0; x < mazeGenerator.mazeWidth; x++) {
+        for (int x = 0; x < mazeGenerator.mazeWidth; x++)
+        {
             for (int y = 0; y < mazeGenerator.mazeHeight; y++)
             {
                 GameObject newCell = Instantiate(MazeCellPrefab, new Vector3((float)x * CellSize, 0f, (float)y * CellSize), Quaternion.identity, transform);
