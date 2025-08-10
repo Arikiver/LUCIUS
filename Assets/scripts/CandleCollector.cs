@@ -1,30 +1,35 @@
 using UnityEngine;
 
-public class Action : MonoBehaviour
+public class CandleCollector : MonoBehaviour
 {
+    [Header("Audio")]
     public AudioSource source;
-    private RandomSpawn spawner; // Assign a reference to this field
     public AudioClip clip1;
-    private ObjectMovement objectMovement; // This will hold the reference to ObjectMovement component
+
+    [Header("Cached References")]
+    private RandomSpawn spawner;
+    private ObjectMovement objectMovement;
 
     void Start()
     {
-        // Find the ObjectMovement component in the scene and assign it to objectMovement variable
+        // Cache references once
         objectMovement = FindObjectOfType<ObjectMovement>();
-
-        // Find the RandomSpawn component in the scene and assign it to spawner variable
         spawner = FindObjectOfType<RandomSpawn>();
 
-        // Check if objectMovement is found
+        // Validate references
         if (objectMovement == null)
         {
             Debug.LogError("ObjectMovement component not found in the scene!");
         }
 
-        // Check if spawner is found
         if (spawner == null)
         {
             Debug.LogError("RandomSpawn component not found in the scene!");
+        }
+
+        if (source == null)
+        {
+            source = GetComponent<AudioSource>();
         }
     }
 
@@ -34,35 +39,31 @@ public class Action : MonoBehaviour
 
         if (other.CompareTag("Candle"))
         {
-            Debug.Log("Candle collider detected");
+            Debug.Log("Candle collected!");
 
-            source.PlayOneShot(clip1);
+            // Play collection sound
+            if (source != null && clip1 != null)
+            {
+                source.PlayOneShot(clip1);
+            }
 
             // Deactivate the candle GameObject
             other.gameObject.SetActive(false);
 
-            // Increment spawnCount in the spawner
+            // Update spawner count
             if (spawner != null)
             {
                 spawner.spawnCount++;
             }
-            else
-            {
-                Debug.LogError("RandomSpawn component is not assigned!");
-            }
 
-            // Check if objectMovement is assigned before accessing its properties
+            // Reset candle mechanics
             if (objectMovement != null)
             {
-                // Set the Y position to initialPositionY and reset candleLife
                 float y = objectMovement.initialPositionY;
                 objectMovement.ChangeY(y);
                 objectMovement.timer = 0f;
                 objectMovement.candleLife = 20f;
-            }
-            else
-            {
-                Debug.LogError("ObjectMovement component is not assigned!");
+                objectMovement.ResetMovement(); // New method we'll add
             }
         }
     }

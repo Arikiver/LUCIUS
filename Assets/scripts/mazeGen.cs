@@ -1,19 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class mazeGen : MonoBehaviour
+public class MazeGen : MonoBehaviour // Fixed class name
 {
     [Range(5, 500)]
     public int mazeWidth = 5, mazeHeight = 5;
     public int startX, startY;
-    MazeCell[,] maze;
 
+    MazeCell[,] maze;
     Vector2Int currentCell;
 
     public MazeCell[,] GetMaze()
     {
-        maze = new MazeCell[mazeWidth, mazeHeight];
+        // Validate start position
+        if (startX < 0 || startX >= mazeWidth || startY < 0 || startY >= mazeHeight)
+        {
+            Debug.LogWarning($"Start position ({startX}, {startY}) is out of bounds. Using (0, 0)");
+            startX = 0;
+            startY = 0;
+        }
 
+        maze = new MazeCell[mazeWidth, mazeHeight];
         for (int x = 0; x < mazeWidth; x++)
         {
             for (int y = 0; y < mazeHeight; y++)
@@ -23,7 +30,6 @@ public class mazeGen : MonoBehaviour
         }
 
         CarvePath(startX, startY);
-
         return maze;
     }
 
@@ -35,7 +41,6 @@ public class mazeGen : MonoBehaviour
     List<Direction> GetRandomDirection()
     {
         List<Direction> dir = new List<Direction>(directions);
-
         List<Direction> ranDir = new List<Direction>();
 
         while (dir.Count > 0)
@@ -44,7 +49,6 @@ public class mazeGen : MonoBehaviour
             ranDir.Add(dir[ran]);
             dir.RemoveAt(ran);
         }
-
         return ranDir;
     }
 
@@ -83,7 +87,6 @@ public class mazeGen : MonoBehaviour
             if (IsCellValid(neighbour.x, neighbour.y))
                 return neighbour;
         }
-
         return currentCell;
     }
 
@@ -101,6 +104,7 @@ public class mazeGen : MonoBehaviour
 
     void CarvePath(int x, int y)
     {
+        // Bounds checking with fallback
         if (x < 0 || y < 0 || x >= mazeWidth || y >= mazeHeight)
         {
             x = y = 0;
@@ -108,9 +112,7 @@ public class mazeGen : MonoBehaviour
         }
 
         currentCell = new Vector2Int(x, y);
-
         List<Vector2Int> path = new List<Vector2Int>();
-
         bool deadEnd = false;
 
         while (!deadEnd)
@@ -124,7 +126,6 @@ public class mazeGen : MonoBehaviour
                     currentCell = path[i];
                     path.RemoveAt(i);
                     nextCell = CheckNeighbour();
-
                     if (nextCell != currentCell)
                         break;
                 }
@@ -141,32 +142,30 @@ public class mazeGen : MonoBehaviour
             }
         }
     }
-}
 
-public enum Direction { Up, Down, Right, Left }
-public class MazeCell
-{
-    public bool visited;
-    public int x, y;
+    public enum Direction { Up, Down, Right, Left }
 
-    public bool topWall;
-    public bool leftWall;
-
-    public Vector2Int position
+    public class MazeCell
     {
-        get
+        public bool visited;
+        public int x, y;
+        public bool topWall;
+        public bool leftWall;
+
+        public Vector2Int position
         {
-            return new Vector2Int(x, y);
+            get
+            {
+                return new Vector2Int(x, y);
+            }
         }
-    }
 
-    public MazeCell(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-
-        visited = false;
-
-        topWall = leftWall = true;
+        public MazeCell(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+            visited = false;
+            topWall = leftWall = true;
+        }
     }
 }

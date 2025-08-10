@@ -12,32 +12,37 @@ public class Timer : MonoBehaviour
     private void Start()
     {
         obj = FindObjectOfType<ObjectMovement>();
+
         if (obj == null)
         {
             Debug.LogError("ObjectMovement component not found in the scene!");
+        }
+
+        if (timerText == null)
+        {
+            Debug.LogError("Timer Text UI not assigned!");
         }
     }
 
     void Update()
     {
-        // Check if obj is not null and if gameOverText is not null before accessing its properties
-        if (obj != null && obj.gameOverText != null && obj.gameOverText.activeSelf == false)
+        // Enhanced null checking
+        if (obj != null && obj.gameOverText != null && !obj.gameOverText.activeSelf)
         {
             time += Time.deltaTime;
-
-            // Update TextMesh text
             UpdateTimerText();
         }
     }
 
     void UpdateTimerText()
     {
-        // Convert time to minutes and seconds
-        int minutes = Mathf.FloorToInt(time / 60);
-        int seconds = Mathf.FloorToInt(time % 60);
-        string timerString = string.Format("{0:00}:{1:00}", minutes, seconds);
-
-        // Update TextMesh text
-        timerText.text = "Time: " + timerString;
+        if (timerText != null)
+        {
+            // Convert time to minutes and seconds
+            int minutes = Mathf.FloorToInt(time / 60);
+            int seconds = Mathf.FloorToInt(time % 60);
+            string timerString = string.Format("{0:00}:{1:00}", minutes, seconds);
+            timerText.text = "Time: " + timerString;
+        }
     }
 }
